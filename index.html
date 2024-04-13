@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo App</title>
+    <style>
+      #todo-list {
+        list-style-type: none;
+        padding: 0;
+      }
+      #todo-list li {
+        margin-bottom: 5px;
+        cursor: pointer;
+      }
+      .completed {
+        text-decoration: line-through;
+      }
+      .delete-button {
+        margin-left: 10px;
+        cursor: pointer;
+        background-color: #ff3333;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Todo App</h1>
+
+    <input type="text" id="todo-input" placeholder="Enter a new todo" />
+    <button onclick="addTodo()">Add</button>
+
+    <ul id="todo-list"></ul>
+
+    <script>
+      // Function to retrieve todos from localStorage
+      function getTodos() {
+        return JSON.parse(localStorage.getItem("todos")) || [];
+      }
+
+      // Function to save todos to localStorage
+      function saveTodos(todos) {
+        localStorage.setItem("todos", JSON.stringify(todos));
+      }
+
+      // Function to render todos
+      function renderTodos() {
+        const todoList = document.getElementById("todo-list");
+        todoList.innerHTML = "";
+        const todos = getTodos();
+        todos.forEach((todo, index) => {
+          const li = document.createElement("li");
+          li.textContent = todo.text;
+          if (todo.completed) {
+            li.classList.add("completed");
+          }
+          li.addEventListener("click", () => toggleTodo(index));
+          const deleteButton = document.createElement("button");
+          deleteButton.textContent = "Delete";
+          deleteButton.classList.add("delete-button");
+          deleteButton.addEventListener("click", (event) => {
+            event.stopPropagation();
+            deleteTodo(index);
+          });
+          li.appendChild(deleteButton);
+          todoList.appendChild(li);
+        });
+      }
+
+      // Function to add a new todo
+      function addTodo() {
+        const input = document.getElementById("todo-input");
+        const todoText = input.value.trim();
+        if (todoText !== "") {
+          const todos = getTodos();
+          todos.push({ text: todoText, completed: false });
+          saveTodos(todos);
+          input.value = "";
+          renderTodos();
+        }
+      }
+
+      // Function to toggle the completed status of a todo
+      function toggleTodo(index) {
+        const todos = getTodos();
+        todos[index].completed = !todos[index].completed;
+        saveTodos(todos);
+        renderTodos();
+      }
+
+      // Function to delete a todo
+      function deleteTodo(index) {
+        const todos = getTodos();
+        todos.splice(index, 1);
+        saveTodos(todos);
+        renderTodos();
+      }
+
+      // Event listener for pressing "Enter" key to add todo
+      document
+        .getElementById("todo-input")
+        .addEventListener("keypress", function (event) {
+          if (event.key === "Enter") {
+            addTodo();
+          }
+        });
+
+      // Render todos when the page loads
+      document.addEventListener("DOMContentLoaded", renderTodos);
+    </script>
+  </body>
+</html>
